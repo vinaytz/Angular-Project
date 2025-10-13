@@ -9,6 +9,7 @@ import { Message } from './dashboard/message/message';
 import { Profile } from './dashboard/profile/profile';
 import { Signup } from './dashboard/signup/signup';
 import { Login } from './dashboard/login/login';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', component: Landing },
@@ -17,6 +18,7 @@ export const routes: Routes = [
     {
         path: 'dashboard',
         component: DashboardComponent,
+        canActivate: [AuthGuard],
         children: [
             { path: 'home', component: Home },
             { path: 'about', component: AboutUsComponent },
@@ -27,4 +29,5 @@ export const routes: Routes = [
             { path: '', redirectTo: 'home', pathMatch: 'full' } // Default child route
         ]
     },
+    { path: '**', redirectTo: '' }
 ];

@@ -26,7 +26,7 @@
         <!-- Welcome Section -->
         <section class="welcome-section">
             <div class="welcome-content">
-                <h1>Good morning, Vinay! 👋</h1>
+                <h1>{{ getGreeting() }}, {{ currentUser?.firstName || 'User' }}! 👋</h1>
                 <p>Ready to tackle your freelance projects today?</p>
             </div>
             <div class="stats-grid">
@@ -38,7 +38,7 @@
                         </svg>
                     </div>
                     <div class="stat-info">
-                        <h3>5</h3>
+                        <h3>{{ stats.activeProjects }}</h3>
                         <p>Active Projects</p>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                         </svg>
                     </div>
                     <div class="stat-info">
-                        <h3>$12,450</h3>
+                        <h3>{{ formatCurrency(stats.monthlyEarnings) }}</h3>
                         <p>This Month</p>
                     </div>
                 </div>
@@ -64,61 +64,45 @@
                 <button class="view-all-btn">View All</button>
             </div>
             
+            <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
+            
             <div class="projects-grid">
-                <div class="project-card urgent">
+                <div *ngFor="let project of activeProjects" 
+                     class="project-card" 
+                     [ngClass]="getProjectStatusClass(project.priority)">
                     <div class="project-header">
                         <div class="project-client">
-                            <img src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Client">
+                            <img [src]="project.client.avatar || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100'" 
+                                 [alt]="project.client.firstName + ' ' + project.client.lastName">
                             <div class="client-info">
-                                <h4>Sarah Johnson</h4>
-                                <span class="project-type">E-commerce Design</span>
+                                <h4>{{ project.client.firstName }} {{ project.client.lastName }}</h4>
+                                <span class="project-type">{{ project.skills[0] || 'Project' }}</span>
                             </div>
                         </div>
-                        <div class="priority-badge urgent">Urgent</div>
+                        <div class="priority-badge" [ngClass]="project.priority">
+                            {{ project.priority | titlecase }}
+                        </div>
                     </div>
-                    <h3 class="project-title">Modern E-commerce Platform UI/UX</h3>
-                    <p class="project-desc">Design a complete e-commerce platform with modern UI elements and seamless user experience.</p>
+                    <h3 class="project-title">{{ project.title }}</h3>
+                    <p class="project-desc">{{ project.description }}</p>
                     <div class="project-progress">
                         <div class="progress-info">
                             <span>Progress</span>
-                            <span>75%</span>
+                            <span>{{ project.progress }}%</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: 75%"></div>
+                            <div class="progress-fill" [style.width.%]="project.progress"></div>
                         </div>
                     </div>
                     <div class="project-footer">
-                        <span class="project-price">$2,500</span>
-                        <span class="project-deadline">Due in 2 days</span>
+                        <span class="project-price">{{ formatCurrency(project.price) }}</span>
+                        <span class="project-deadline">{{ formatDate(project.deadline) }}</span>
                     </div>
                 </div>
-
-                <div class="project-card">
-                    <div class="project-header">
-                        <div class="project-client">
-                            <img src="https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Client">
-                            <div class="client-info">
-                                <h4>Alex Thompson</h4>
-                                <span class="project-type">Mobile App</span>
-                            </div>
-                        </div>
-                        <div class="priority-badge normal">Normal</div>
-                    </div>
-                    <h3 class="project-title">Fitness Tracking Mobile App</h3>
-                    <p class="project-desc">Create a comprehensive fitness tracking app with workout plans and progress monitoring.</p>
-                    <div class="project-progress">
-                        <div class="progress-info">
-                            <span>Progress</span>
-                            <span>45%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 45%"></div>
-                        </div>
-                    </div>
-                    <div class="project-footer">
-                        <span class="project-price">$3,200</span>
-                        <span class="project-deadline">Due in 1 week</span>
-                    </div>
+                
+                <div *ngIf="activeProjects.length === 0 && !isLoading" class="no-projects">
+                    <p>No active projects at the moment.</p>
+                    <button class="btn btn-primary">Browse Projects</button>
                 </div>
             </div>
         </section>
@@ -131,38 +115,23 @@
             </div>
             
             <div class="messages-list">
-                <div class="message-item unread">
-                    <img src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Sarah Johnson">
+                <div *ngFor="let conversation of recentMessages" 
+                     class="message-item" 
+                     [ngClass]="{ 'unread': conversation.unreadCount > 0 }">
+                    <img [src]="conversation.otherParticipant.avatar || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100'" 
+                         [alt]="conversation.otherParticipant.firstName + ' ' + conversation.otherParticipant.lastName">
                     <div class="message-content">
                         <div class="message-header">
-                            <h4>Sarah Johnson</h4>
-                            <span class="message-time">2m ago</span>
+                            <h4>{{ conversation.otherParticipant.firstName }} {{ conversation.otherParticipant.lastName }}</h4>
+                            <span class="message-time">{{ formatDate(conversation.updatedAt) }}</span>
                         </div>
-                        <p>Hi! I've reviewed the latest designs and they look amazing. Can we discuss the checkout flow?</p>
+                        <p>{{ conversation.lastMessage?.content || 'No messages yet' }}</p>
                     </div>
-                    <div class="unread-indicator"></div>
+                    <div *ngIf="conversation.unreadCount > 0" class="unread-indicator"></div>
                 </div>
 
-                <div class="message-item">
-                    <img src="https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Alex Thompson">
-                    <div class="message-content">
-                        <div class="message-header">
-                            <h4>Alex Thompson</h4>
-                            <span class="message-time">1h ago</span>
-                        </div>
-                        <p>The mockups are perfect! Let's move forward with the development phase.</p>
-                    </div>
-                </div>
-
-                <div class="message-item">
-                    <img src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Maria Garcia">
-                    <div class="message-content">
-                        <div class="message-header">
-                            <h4>Maria Garcia</h4>
-                            <span class="message-time">3h ago</span>
-                        </div>
-                        <p>Thanks for the quick turnaround on the logo concepts. I love design #3!</p>
-                    </div>
+                <div *ngIf="recentMessages.length === 0 && !isLoading" class="no-messages">
+                    <p>No recent messages.</p>
                 </div>
             </div>
         </section>
