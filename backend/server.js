@@ -6,6 +6,7 @@ const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const freelancerRoutes = require('./routes/freelancerRoutes');
 const clientRoutes = require('./routes/clientRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/freelancer', freelancerRoutes);
 app.use('/api/client', clientRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'FreelanceHub API is running' });

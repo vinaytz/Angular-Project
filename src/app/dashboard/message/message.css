@@ -560,6 +560,20 @@
     background: rgba(16, 185, 129, 0.5);
 }
 
+/* Empty States */
+.no-conversations,
+.no-messages {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #64748b;
+}
+
+.no-conversations p,
+.no-messages p {
+    font-size: 1rem;
+    margin: 0;
+}
+
 /* Responsive Design */
 @media (min-width: 640px) {
     .message {
