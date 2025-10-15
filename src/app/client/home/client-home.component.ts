@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClientService } from '../../services/client.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-client-home',
@@ -28,7 +29,8 @@ export class ClientHomeComponent implements OnInit {
 
   constructor(
     private clientService: ClientService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {}
 
   async ngOnInit() {
@@ -64,13 +66,13 @@ export class ClientHomeComponent implements OnInit {
   async createGig() {
     try {
       await this.clientService.createGig(this.gigForm);
-      alert('Gig created successfully!');
+      this.notificationService.success('Gig created successfully!');
       this.showCreateGig.set(false);
       this.resetForm();
       await this.loadGigs();
       await this.loadDashboardData();
     } catch (error: any) {
-      alert(error.message || 'Failed to create gig');
+      this.notificationService.error(error.message || 'Failed to create gig');
     }
   }
 

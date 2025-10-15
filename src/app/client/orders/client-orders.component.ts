@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { ClientService } from '../../services/client.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-client-orders',
@@ -15,7 +16,10 @@ export class ClientOrdersComponent implements OnInit {
   loading = signal(true);
   activeTab = signal<'requests' | 'active'>('requests');
 
-  constructor(private clientService: ClientService) {}
+  constructor(
+    private clientService: ClientService,
+    private notificationService: NotificationService
+  ) {}
 
   async ngOnInit() {
     await this.loadData();
@@ -40,10 +44,10 @@ export class ClientOrdersComponent implements OnInit {
   async acceptRequest(requestId: string) {
     try {
       await this.clientService.acceptRequest(requestId);
-      alert('Request accepted! Project created successfully.');
+      this.notificationService.success('Request accepted! Project created successfully.');
       await this.loadData();
     } catch (error: any) {
-      alert(error.message || 'Failed to accept request');
+      this.notificationService.error(error.message || 'Failed to accept request');
     }
   }
 

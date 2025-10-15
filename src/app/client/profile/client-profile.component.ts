@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ClientService } from '../../services/client.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-client-profile',
@@ -23,7 +24,8 @@ export class ClientProfileComponent implements OnInit {
 
   constructor(
     private clientService: ClientService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {}
 
   async ngOnInit() {
@@ -47,10 +49,10 @@ export class ClientProfileComponent implements OnInit {
   async saveProfile() {
     try {
       await this.clientService.updateProfile(this.profileForm);
-      alert('Profile updated successfully!');
+      this.notificationService.success('Profile updated successfully!');
       await this.loadProfile();
     } catch (error: any) {
-      alert(error.message || 'Failed to update profile');
+      this.notificationService.error(error.message || 'Failed to update profile');
     }
   }
 
