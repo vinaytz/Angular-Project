@@ -450,20 +450,43 @@
     }
 }
 
+/* Loading State */
+.loading-container {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #94a3b8;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.1);
+    border-radius: 16px;
+    color: #94a3b8;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    color: #64748b;
+}
+
 /* Responsive Design */
 @media (min-width: 640px) {
     .main-content {
         padding: 2rem;
     }
-    
+
     .order-card {
         padding: 2rem;
     }
-    
+
     .order-actions {
         gap: 1rem;
     }
-    
+
     .action-btn {
         flex: 0 1 auto;
         min-width: 140px;

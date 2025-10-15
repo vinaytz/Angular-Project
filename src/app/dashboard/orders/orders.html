@@ -27,27 +27,54 @@
             <p>Manage your ongoing and completed projects</p>
         </section>
 
+        <!-- Loading State -->
+        <div *ngIf="loading" class="loading-container">
+            <p>Loading orders...</p>
+        </div>
+
         <!-- Order Status Tabs -->
-        <div class="status-tabs">
-            <button class="tab-btn active" data-status="active">Active (5)</button>
-            <button class="tab-btn" data-status="pending">Pending (2)</button>
-            <button class="tab-btn" data-status="completed">Completed (12)</button>
+        <div *ngIf="!loading" class="status-tabs">
+            <button
+                class="tab-btn"
+                [class.active]="activeTab === 'active'"
+                (click)="switchTab('active')">
+                Active ({{ activeOrders.length }})
+            </button>
+            <button
+                class="tab-btn"
+                [class.active]="activeTab === 'pending'"
+                (click)="switchTab('pending')">
+                Pending ({{ pendingOrders.length }})
+            </button>
+            <button
+                class="tab-btn"
+                [class.active]="activeTab === 'completed'"
+                (click)="switchTab('completed')">
+                Completed ({{ completedOrders.length }})
+            </button>
         </div>
 
         <!-- Orders List -->
-        <div class="orders-container">
-            <div class="tab-content active" id="active-orders">
-                <div class="order-card urgent">
+        <div *ngIf="!loading" class="orders-container">
+            <!-- Active Orders -->
+            <div class="tab-content" [class.active]="activeTab === 'active'">
+                <div *ngIf="activeOrders.length === 0" class="empty-state">
+                    <p>No active orders yet</p>
+                </div>
+                <div
+                    *ngFor="let order of activeOrders"
+                    class="order-card"
+                    [class.urgent]="isUrgent(order.gigId?.deadline)">
                     <div class="order-header">
                         <div class="client-info">
-                            <img src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Sarah Johnson">
+                            <img [src]="getClientImage(order.clientId)" [alt]="getClientName(order.clientId)">
                             <div>
-                                <h3>E-commerce Platform UI/UX</h3>
-                                <span class="client-name">Sarah Johnson</span>
+                                <h3>{{ order.gigId?.title || 'Untitled Project' }}</h3>
+                                <span class="client-name">{{ getClientName(order.clientId) }}</span>
                             </div>
                         </div>
-                        <div class="order-status urgent">
-                            <span>Urgent</span>
+                        <div class="order-status" [class.urgent]="isUrgent(order.gigId?.deadline)">
+                            <span>{{ isUrgent(order.gigId?.deadline) ? 'Urgent' : 'In Progress' }}</span>
                         </div>
                     </div>
 
@@ -55,25 +82,27 @@
                         <div class="progress-section">
                             <div class="progress-info">
                                 <span>Progress</span>
-                                <span class="progress-percent">75%</span>
+                                <span class="progress-percent">{{ order.progressPercentage || 0 }}%</span>
                             </div>
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 75%"></div>
+                                <div class="progress-fill" [style.width.%]="order.progressPercentage || 0"></div>
                             </div>
                         </div>
 
                         <div class="order-meta">
                             <div class="meta-item">
                                 <span class="meta-label">Price</span>
-                                <span class="meta-value price">$2,500</span>
+                                <span class="meta-value price">${{ order.gigId?.budget || 0 }}</span>
                             </div>
                             <div class="meta-item">
                                 <span class="meta-label">Deadline</span>
-                                <span class="meta-value deadline urgent">2 days left</span>
+                                <span class="meta-value deadline" [class.urgent]="isUrgent(order.gigId?.deadline)">
+                                    {{ calculateDaysLeft(order.gigId?.deadline) }}
+                                </span>
                             </div>
                             <div class="meta-item">
                                 <span class="meta-label">Started</span>
-                                <span class="meta-value">Jan 15, 2025</span>
+                                <span class="meta-value">{{ formatDate(order.startedAt) }}</span>
                             </div>
                         </div>
                     </div>
@@ -97,136 +126,20 @@
                         </button>
                     </div>
                 </div>
-
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="client-info">
-                            <img src="https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Alex Thompson">
-                            <div>
-                                <h3>Fitness Tracking Mobile App</h3>
-                                <span class="client-name">Alex Thompson</span>
-                            </div>
-                        </div>
-                        <div class="order-status active">
-                            <span>In Progress</span>
-                        </div>
-                    </div>
-
-                    <div class="order-details">
-                        <div class="progress-section">
-                            <div class="progress-info">
-                                <span>Progress</span>
-                                <span class="progress-percent">45%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 45%"></div>
-                            </div>
-                        </div>
-
-                        <div class="order-meta">
-                            <div class="meta-item">
-                                <span class="meta-label">Price</span>
-                                <span class="meta-value price">$3,200</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">Deadline</span>
-                                <span class="meta-value deadline">1 week left</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">Started</span>
-                                <span class="meta-value">Jan 10, 2025</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="order-actions">
-                        <button class="action-btn message-btn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                <polyline points="22,6 12,13 2,6"/>
-                            </svg>
-                            Message
-                        </button>
-                        <button class="action-btn upload-btn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17,8 12,3 7,8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
-                            </svg>
-                            Upload Files
-                        </button>
-                    </div>
-                </div>
-
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="client-info">
-                            <img src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Maria Garcia">
-                            <div>
-                                <h3>Brand Identity Design</h3>
-                                <span class="client-name">Maria Garcia</span>
-                            </div>
-                        </div>
-                        <div class="order-status active">
-                            <span>In Progress</span>
-                        </div>
-                    </div>
-
-                    <div class="order-details">
-                        <div class="progress-section">
-                            <div class="progress-info">
-                                <span>Progress</span>
-                                <span class="progress-percent">60%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 60%"></div>
-                            </div>
-                        </div>
-
-                        <div class="order-meta">
-                            <div class="meta-item">
-                                <span class="meta-label">Price</span>
-                                <span class="meta-value price">$1,800</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">Deadline</span>
-                                <span class="meta-value deadline">5 days left</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">Started</span>
-                                <span class="meta-value">Jan 8, 2025</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="order-actions">
-                        <button class="action-btn message-btn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                <polyline points="22,6 12,13 2,6"/>
-                            </svg>
-                            Message
-                        </button>
-                        <button class="action-btn revisions-btn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="23 4 23 10 17 10"/>
-                                <polyline points="1 20 1 14 7 14"/>
-                                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
-                            </svg>
-                            Request Revision
-                        </button>
-                    </div>
-                </div>
             </div>
 
-            <div class="tab-content" id="pending-orders">
-                <div class="order-card pending">
+            <!-- Pending Orders -->
+            <div class="tab-content" [class.active]="activeTab === 'pending'">
+                <div *ngIf="pendingOrders.length === 0" class="empty-state">
+                    <p>No pending requests</p>
+                </div>
+                <div *ngFor="let request of pendingOrders" class="order-card pending">
                     <div class="order-header">
                         <div class="client-info">
-                            <img src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100" alt="John Smith">
+                            <img [src]="getClientImage(request.gigId?.clientId)" [alt]="getClientName(request.gigId?.clientId)">
                             <div>
-                                <h3>Corporate Website Redesign</h3>
-                                <span class="client-name">John Smith</span>
+                                <h3>{{ request.gigId?.title || 'Untitled Project' }}</h3>
+                                <span class="client-name">{{ getClientName(request.gigId?.clientId) }}</span>
                             </div>
                         </div>
                         <div class="order-status pending">
@@ -238,11 +151,11 @@
                         <div class="order-meta">
                             <div class="meta-item">
                                 <span class="meta-label">Price</span>
-                                <span class="meta-value price">$4,200</span>
+                                <span class="meta-value price">${{ request.gigId?.budget || 0 }}</span>
                             </div>
                             <div class="meta-item">
                                 <span class="meta-label">Submitted</span>
-                                <span class="meta-value">2 hours ago</span>
+                                <span class="meta-value">{{ formatDate(request.createdAt) }}</span>
                             </div>
                             <div class="meta-item">
                                 <span class="meta-label">Response Time</span>
@@ -271,14 +184,18 @@
                 </div>
             </div>
 
-            <div class="tab-content" id="completed-orders">
-                <div class="order-card completed">
+            <!-- Completed Orders -->
+            <div class="tab-content" [class.active]="activeTab === 'completed'">
+                <div *ngIf="completedOrders.length === 0" class="empty-state">
+                    <p>No completed orders yet</p>
+                </div>
+                <div *ngFor="let order of completedOrders" class="order-card completed">
                     <div class="order-header">
                         <div class="client-info">
-                            <img src="https://images.pexels.com/photos/1462980/pexels-photo-1462980.jpeg?auto=compress&cs=tinysrgb&w=100" alt="Emma Wilson">
+                            <img [src]="getClientImage(order.clientId)" [alt]="getClientName(order.clientId)">
                             <div>
-                                <h3>E-learning Platform UI</h3>
-                                <span class="client-name">Emma Wilson</span>
+                                <h3>{{ order.gigId?.title || 'Untitled Project' }}</h3>
+                                <span class="client-name">{{ getClientName(order.clientId) }}</span>
                             </div>
                         </div>
                         <div class="order-status completed">
@@ -290,15 +207,15 @@
                         <div class="order-meta">
                             <div class="meta-item">
                                 <span class="meta-label">Final Price</span>
-                                <span class="meta-value price">$2,800</span>
+                                <span class="meta-value price">${{ order.gigId?.budget || 0 }}</span>
                             </div>
                             <div class="meta-item">
                                 <span class="meta-label">Completed</span>
-                                <span class="meta-value">Dec 28, 2024</span>
+                                <span class="meta-value">{{ formatDate(order.completedAt) }}</span>
                             </div>
                             <div class="meta-item">
-                                <span class="meta-label">Rating</span>
-                                <span class="meta-value rating">★★★★★ 5.0</span>
+                                <span class="meta-label">Duration</span>
+                                <span class="meta-value">{{ formatDate(order.startedAt) }}</span>
                             </div>
                         </div>
                     </div>
@@ -356,19 +273,4 @@
             <span>Profile</span>
         </a>
     </nav>
-    <script>
-        // Tab functionality
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Remove active class from all tabs
-                document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                this.classList.add('active');
-                const status = this.getAttribute('data-status');
-                document.getElementById(status + '-orders').classList.add('active');
-            });
-        });
-    </script>
 </div>
