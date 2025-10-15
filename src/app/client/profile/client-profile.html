@@ -9,50 +9,119 @@
     </header>
 
     <main class="main-content">
-        <section class="page-header">
-            <h1>Profile</h1>
-            <p>Manage your account information</p>
-        </section>
-
         @if (loading()) {
-            <div style="text-align: center; padding: 40px; color: #64748b;">
+            <div class="loading-state">
+                <div class="spinner"></div>
                 <p>Loading profile...</p>
             </div>
         }
 
         @if (!loading()) {
-            <div class="profile-card">
-                <div class="profile-header">
-                    <div class="profile-avatar">
-                        <img src="/me.jpg" alt="Profile">
+            <div class="profile-header-section">
+                <div class="profile-avatar">
+                    <img src="/me.jpg" alt="Profile">
+                    <div class="status-indicator"></div>
+                </div>
+                <div class="profile-info">
+                    <h1>{{ user()?.firstName }} {{ user()?.lastName }}</h1>
+                    <p class="email">{{ user()?.email }}</p>
+                    <span class="user-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        </svg>
+                        Client Account
+                    </span>
+                </div>
+            </div>
+
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon projects">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
                     </div>
-                    <div class="profile-info">
-                        <h2>{{ user()?.firstName }} {{ user()?.lastName }}</h2>
-                        <p>{{ user()?.email }}</p>
-                        <span class="user-badge">Client</span>
+                    <div class="stat-content">
+                        <span class="stat-value">{{ profile()?.totalGigsPosted || 0 }}</span>
+                        <span class="stat-label">Gigs Posted</span>
                     </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orders">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Active Orders</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                        Company Information
+                    </h2>
                 </div>
 
                 <form class="profile-form" (submit)="saveProfile(); $event.preventDefault()">
                     <div class="form-group">
                         <label>Company Name</label>
-                        <input type="text" [(ngModel)]="profileForm.companyName" name="companyName" placeholder="Enter your company name">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Bio</label>
-                        <textarea [(ngModel)]="profileForm.bio" name="bio" rows="4" placeholder="Tell us about your company"></textarea>
-                    </div>
-
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Total Gigs Posted</span>
-                            <span class="stat-value">{{ profile()?.totalGigsPosted || 0 }}</span>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            </svg>
+                            <input
+                                type="text"
+                                [(ngModel)]="profileForm.companyName"
+                                name="companyName"
+                                placeholder="Enter your company name"
+                            >
                         </div>
                     </div>
 
-                    <button type="submit" class="save-btn">Save Changes</button>
+                    <div class="form-group">
+                        <label>Company Bio</label>
+                        <div class="input-wrapper">
+                            <textarea
+                                [(ngModel)]="profileForm.bio"
+                                name="bio"
+                                rows="4"
+                                placeholder="Tell us about your company, what you're looking for, and your project needs..."
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        Save Changes
+                    </button>
                 </form>
+            </div>
+
+            <div class="section-card account-section">
+                <div class="section-header">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6"/>
+                        </svg>
+                        Account Actions
+                    </h2>
+                </div>
 
                 <button class="logout-btn" (click)="logout()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -60,7 +129,7 @@
                         <polyline points="16 17 21 12 16 7"/>
                         <line x1="21" y1="12" x2="9" y2="12"/>
                     </svg>
-                    Logout
+                    Sign Out
                 </button>
             </div>
         }
